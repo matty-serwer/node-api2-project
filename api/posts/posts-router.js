@@ -37,4 +37,46 @@ router.get("/:id", (req, res) => {
     });
 });
 
+router.get("/:id/comments", (req, res) => {
+  Post.findPostComments(req.params.id)
+    .then((comments) => {
+      // console.log(comments);
+      if (comments.length > 0) {
+        res.status(200).json(comments);
+      } else {
+        res
+          .status(404)
+          .json({ message: "The post with the specified ID does not exist." });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res
+        .status(500)
+        .json({ error: "The comments information could not be retrieved." });
+    });
+});
+
+router.post("/", (req, res) => {
+  if (!req.body.title || !req.body.contents) {
+    res
+      .status(400)
+      .json({
+        errorMessage: "Please provide title and contents for the post.",
+      });
+  }
+  Post.insert(req.body)
+    .then((post) => {
+      res.status(201).json(post);
+    })
+    .catch((error) => {
+      console.log(error);
+      res
+        .status(500)
+        .json({
+          error: "There was an error while saving the post to the database",
+        });
+    });
+});
+
 module.exports = router;
